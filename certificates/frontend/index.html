@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generate Certificate</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="DevQueens Women's Hackathon: empowering women to build the future of technology on 2 April 2026 in Hyderabad."
+  />
+
+  <meta property="og:title" content="DevQueens Women's Hackathon" />
+  <meta
+    property="og:description"
+    content="Join DevQueens Women's Hackathon to innovate, collaborate, and build impactful technology."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://example.com/index/" />
+  <meta property="og:image" content="https://example.com/assets/illustrations/hero-anime.svg" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#070b08" />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/favicon/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png" />
+  <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="canonical" href="https://example.com/index/" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../../css/styles.css">
+</head>
+
+  <body class="Certificates">
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <header class="site-header">
+      <nav class="container nav-wrap" aria-label="Primary navigation">
+        <a class="brand" href="../index/">
+          <img class="brand-logo" src="../assets/logos/Primary_logo.png" alt="DevQueens logo" />
+        </a>
+        <button class="menu-btn" data-menu-btn type="button" aria-label="Toggle menu">Menu</button>
+        <div class="nav-links" data-nav-links>
+          <a class="nav-link" href="../index/">Home</a>
+          <a class="nav-link" href="../about/">About</a>
+          <a class="nav-link" href="../tracks/">Tracks</a>
+          <a class="nav-link" href="../certificates/frontend/">Certificates</a>
+          <a class="nav-link" href="../rules/">Rules</a>
+          <a class="nav-link" href="../index/#faq">FAQ</a>
+        </div>
+      </nav>
+    </header>
+
+  <!-- MAIN WRAPPER -->
+<div class="cert-wrapper">
+
+  <!-- BACKGROUND GLOW -->
+  <div class="glow glow-left"></div>
+  <div class="glow glow-right"></div>
+
+  <!-- CARD -->
+  <div class="cert-container">
+
+    <div class="cert-card">
+
+      <h1 class="cert-title">👑 Generate Certificate</h1>
+
+      <p class="cert-subtitle">
+        We’re glad to have you at <strong>DevQueens</strong> 💚<br/>
+        Your presence made our event shine brighter
+      </p>
+
+      <input id="nameInput"
+        type="text"
+        placeholder="Enter your full name"
+        class="cert-input"
+      />
+
+      <button onclick="search()" class="cert-btn">
+        Search
+      </button>
+
+      <p id="notFound" class="error-text hidden">
+        ❌ Name not found in certificate list
+      </p>
+
+      <p id="errorMsg" class="warning-text hidden">
+        ⚠️ Something went wrong
+      </p>
+
+      <!-- RESULT -->
+      <div id="resultBox" class="result-box hidden">
+
+        <p class="success-text">
+          ✅ Found: <strong id="resultName"></strong>
+        </p>
+
+        <button id="downloadBtn" onclick="downloadCertificate()" class="cert-btn">⬇ Download Certificate</button>
+
+        <button onclick="clearAll()" class="clear-btn">
+          Clear
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const API = "http://127.0.0.1:8000";
+
+async function search() {
+  const name = document.getElementById("nameInput").value.trim();
+
+  console.log("Search clicked:", name); // DEBUG
+
+  if (!name) {
+    alert("Please enter a name");
+    return;
+  }
+
+  hideAll();
+
+  try {
+    const res = await fetch(`${API}/search?name=${encodeURIComponent(name)}`);
+
+    console.log("Status:", res.status);
+
+    const data = await res.json();
+    console.log("Response:", data);
+
+    if (!res.ok) {
+      document.getElementById("notFound").classList.remove("hidden");
+      return;
+    }
+
+    currentName = data.Name;
+
+    document.getElementById("resultName").innerText = currentName;
+    document.getElementById("resultBox").classList.remove("hidden");
+
+  } catch (err) {
+    console.error("Search error:", err);
+    document.getElementById("errorMsg").classList.remove("hidden");
+  }
+}
+
+  let currentName = "";
+
+  async function downloadCertificate() {
+  const btn = document.getElementById("downloadBtn");
+
+  try {
+    if (!currentName) {
+      alert("Please search a name first!");
+      return;
+    }
+
+    // 🔄 Show loading state
+    btn.disabled = true;
+    btn.innerText = "⏳ Generating...";
+
+    const res = await fetch(
+      `${API}/certificate?name=${encodeURIComponent(currentName)}`
+    );
+
+    if (!res.ok) throw new Error("Download failed");
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Certificate_${currentName.replace(/\s+/g, "_")}.png`;
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("errorMsg").classList.remove("hidden");
+
+  } finally {
+    // 🔄 Reset button
+    btn.disabled = false;
+    btn.innerText = "⬇ Download Certificate";
+  }
+}
+
+  // 🧹 CLEAR
+  function clearAll() {
+    document.getElementById("nameInput").value = "";
+    currentName = "";
+    hideAll();
+  }
+
+  function hideAll() {
+    document.getElementById("notFound").classList.add("hidden");
+    document.getElementById("errorMsg").classList.add("hidden");
+    document.getElementById("resultBox").classList.add("hidden");
+  }
+</script>
+
+</body>
+</html>
