@@ -1,0 +1,93 @@
+import os
+import pandas as pd
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
+from PIL import Image, ImageDraw, ImageFont
+import io
+
+app = FastAPI()
+
+# ✅ CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_FILE = os.path.join(BASE_DIR, "participants.csv")
+TEMPLATE_FILE = os.path.join(BASE_DIR, "certificate_template.png")
+
+# ✅ Load data ONCE (FAST LOOKUP)
+df = pd.read_csv(CSV_FILE)
+df["Name"] = df["Name"].astype(str).str.strip().str.lower()
+
+# 🔥 Convert to set for fast search
+name_set = set(df["Name"])
+
+# ✅ Load template ONCE
+template_image = Image.open(TEMPLATE_FILE)
+
+max_width = 2000
+
+if template_image.width > max_width:
+    ratio = max_width / template_image.width
+    new_height = int(template_image.height * ratio)
+    template_image = template_image.resize((max_width, new_height), Image.LANCZOS)
+
+
+# ✅ Load font ONCE
+try:
+    font = ImageFont.truetype("arial.ttf", 110)  # reduced size
+except:
+    font = ImageFont.load_default()
+
+
+# 🔍 SEARCH
+@app.get("/search")
+def search(name: str):
+    clean_name = name.strip().lower()
+
+    if clean_name not in name_set:
+        raise HTTPException(status_code=404, detail="Name not found.")
+
+    return {"Name": clean_name.title()}
+
+
+# 🎓 CERTIFICATE
+@app.get("/certificate")
+def generate_certificate(name: str):
+    clean_name = name.strip().lower()
+
+    if clean_name not in name_set:
+        raise HTTPException(status_code=404, detail="Name not found.")
+
+    final_name = clean_name.title()
+
+    try:
+        # 🔥 Copy instead of reopen (FAST)
+        image = template_image.copy()
+        draw = ImageDraw.Draw(image)
+
+        width, height = image.size
+
+        bbox = draw.textbbox((0, 0), final_name, font=font)
+        text_width = bbox[2] - bbox[0]
+
+        x = (width - text_width) / 2
+        y = height / 2 - 110
+
+        draw.text((x, y), final_name, fill="black", font=font)
+
+        img_io = io.BytesIO()
+        image.save(img_io, format="PNG", optimize=True)  # 🔥 optimize
+        img_io.seek(0)
+
+        return StreamingResponse(img_io, media_type="image/png")
+
+    except Exception as e:
+        print("Certificate Error:", e)
+        raise HTTPException(status_code=500, detail="Certificate generation failed")
