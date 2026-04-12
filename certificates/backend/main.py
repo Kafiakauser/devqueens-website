@@ -31,7 +31,7 @@ name_set = set(df["Name"])
 # ✅ Load template ONCE
 template_image = Image.open(TEMPLATE_FILE)
 
-max_width = 2000
+max_width = 1200
 
 if template_image.width > max_width:
     ratio = max_width / template_image.width
@@ -41,7 +41,7 @@ if template_image.width > max_width:
 
 # ✅ Load font ONCE
 try:
-    font = ImageFont.truetype("arial.ttf", 110)  # reduced size
+    font = ImageFont.truetype("arial.ttf", 90)  # reduced size
 except:
     font = ImageFont.load_default()
 
@@ -78,15 +78,22 @@ def generate_certificate(name: str):
         text_width = bbox[2] - bbox[0]
 
         x = (width - text_width) / 2
-        y = height / 2 - 110
+        y = height / 2 - 80
 
         draw.text((x, y), final_name, fill="black", font=font)
 
         img_io = io.BytesIO()
-        image.save(img_io, format="PNG", optimize=True)  # 🔥 optimize
+        image = image.convert("RGB")  # required for JPEG
+        image.save(img_io, format="JPEG", quality=85, optimize=True)  # 🔥 optimize
         img_io.seek(0)
 
-        return StreamingResponse(img_io, media_type="image/png")
+        return StreamingResponse(
+    img_io,
+    media_type="image/jpeg",
+    headers={
+        "Content-Disposition": f'attachment; filename="{final_name}_certificate.jpg"'
+    }
+)
 
     except Exception as e:
         print("Certificate Error:", e)
