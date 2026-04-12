@@ -4,183 +4,115 @@
   <meta charset="UTF-8" />
   <title>Generate Certificate</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="DevQueens Women's Hackathon: empowering women to build the future of technology on 2 April 2026 in Hyderabad."
+  />
 
-    body {
-      margin: 0;
-      font-family: "Exo 2", sans-serif;
-      background: #050806;
-      color: #e9f5ef;
-    }
+  <meta property="og:title" content="DevQueens Women's Hackathon" />
+  <meta
+    property="og:description"
+    content="Join DevQueens Women's Hackathon to innovate, collaborate, and build impactful technology."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://example.com/index/" />
+  <meta property="og:image" content="https://example.com/assets/illustrations/hero-anime.svg" />
 
-    .app-bg {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding-top: 100px;
-      position: relative;
-      overflow: hidden;
-    }
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#070b08" />
 
-    .bg-glow::before,
-    .bg-glow::after {
-      content: "";
-      position: absolute;
-      width: 420px;
-      height: 420px;
-      border-radius: 50%;
-      filter: blur(120px);
-    }
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/favicon/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png" />
+  <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="canonical" href="https://example.com/index/" />
 
-    .bg-glow::before {
-      background: rgba(96, 255, 248, 0.15);
-      top: -120px;
-      left: -120px;
-    }
-
-    .bg-glow::after {
-      background: rgba(0, 152, 144, 0.15);
-      bottom: -120px;
-      right: -120px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 360px;
-      padding: 0 16px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .card {
-      padding: 26px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(16px);
-      text-align: center;
-      box-shadow: 0 0 20px rgba(96,255,248,0.15);
-    }
-
-    .title {
-      font-size: 26px;
-      margin-bottom: 10px;
-      color: #dcfffd;
-    }
-
-    .tagline {
-      font-size: 13px;
-      color: #60fff8;
-      margin-bottom: 18px;
-      line-height: 1.4;
-    }
-
-    .input {
-      width: 100%;
-      padding: 13px;
-      border-radius: 12px;
-      border: none;
-      background: #0c1512;
-      color: #e9f5ef;
-      margin-bottom: 14px;
-      font-size: 14px;
-    }
-
-    .input:focus {
-      outline: none;
-      box-shadow: 0 0 10px #60fff8;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 12px;
-      border: none;
-      background: rgba(0,152,144,0.4);
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-      font-weight: 500;
-    }
-
-    .btn:hover {
-      box-shadow: 0 0 12px rgba(96,255,248,0.6);
-      transform: translateY(-2px);
-    }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .clear {
-      margin-top: 8px;
-      background: transparent;
-      color: #7fa89a;
-    }
-
-    .resultBox {
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.02);
-    }
-
-    .success {
-      color: #60fff8;
-    }
-
-    .error {
-      margin-top: 10px;
-      color: #ff6b6b;
-      font-size: 14px;
-    }
-
-    .warning {
-      color: #ffd166;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../../css/styles.css">
 </head>
 
-<body>
+  <body class="Certificates">
+    <canvas id="particles" aria-hidden="true"></canvas>
 
-<div class="app-bg">
-  <div class="bg-glow"></div>
+    <header class="site-header">
+      <nav class="container nav-wrap" aria-label="Primary navigation">
+        <a class="brand" href="../index/">
+          <img class="brand-logo" src="../assets/logos/Primary_logo.png" alt="DevQueens logo" />
+        </a>
+        <button class="menu-btn" data-menu-btn type="button" aria-label="Toggle menu">Menu</button>
+        <div class="nav-links" data-nav-links>
+          <a class="nav-link" href="../index/">Home</a>
+          <a class="nav-link" href="../about/">About</a>
+          <a class="nav-link" href="../tracks/">Tracks</a>
+          <a class="nav-link" href="../certificates/frontend/">Certificates</a>
+          <a class="nav-link" href="../rules/">Rules</a>
+          <a class="nav-link" href="../index/#faq">FAQ</a>
+        </div>
+      </nav>
+    </header>
 
-  <div class="container">
-    <div class="card">
+  <!-- MAIN WRAPPER -->
+<div class="cert-wrapper">
 
-      <h1 class="title">👑 Generate Certificate</h1>
+  <!-- BACKGROUND GLOW -->
+  <div class="glow glow-left"></div>
+  <div class="glow glow-right"></div>
 
-      <p class="tagline">
-        We’re glad to have you at <strong>DevQueens</strong> 💚 <br />
+  <!-- CARD -->
+  <div class="cert-container">
+
+    <div class="cert-card">
+
+      <h1 class="cert-title">👑 Generate Certificate</h1>
+
+      <p class="cert-subtitle">
+        We’re glad to have you at <strong>DevQueens</strong> 💚<br/>
         Your presence made our event shine brighter
       </p>
 
-      <input id="nameInput" type="text" placeholder="Enter your full name" class="input" />
+      <input id="nameInput"
+        type="text"
+        placeholder="Enter your full name"
+        class="cert-input"
+      />
 
-      <button class="btn" onclick="search()">Search</button>
+      <button onclick="search()" class="cert-btn">
+        Search
+      </button>
 
-      <p id="notFound" class="error hidden">❌ Name not found in certificate list</p>
-      <p id="errorMsg" class="error warning hidden">⚠️ Something went wrong</p>
+      <p id="notFound" class="error-text hidden">
+        ❌ Name not found in certificate list
+      </p>
 
-      <div id="resultBox" class="resultBox hidden">
-        <p class="success">
+      <p id="errorMsg" class="warning-text hidden">
+        ⚠️ Something went wrong
+      </p>
+
+      <!-- RESULT -->
+      <div id="resultBox" class="result-box hidden">
+
+        <p class="success-text">
           ✅ Found: <strong id="resultName"></strong>
         </p>
 
-        <button id="downloadBtn" class="btn" onclick="downloadCertificate()">⬇ Download Certificate</button>
-        <button class="btn clear" onclick="clearAll()">Clear</button>
+        <button id="downloadBtn" onclick="downloadCertificate()" class="cert-btn">⬇ Download Certificate</button>
+
+        <button onclick="clearAll()" class="clear-btn">
+          Clear
+        </button>
+
       </div>
 
     </div>
   </div>
 </div>
+
 
 <script>
   const API = "http://127.0.0.1:8000";
