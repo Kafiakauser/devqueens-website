@@ -75,15 +75,15 @@ def generate_certificate(name: str):
         def get_font_size(name):
             length = len(name)
             if length <= 6:
-                return 300
+                return 360
             elif length <= 10:
-                return 260
+                return 320
             elif length <= 14:
-                return 220
+                return 280
             elif length <= 18:
-                return 180
+                return 240
             else:
-                return 140
+                return 200
 
         font_size = get_font_size(final_name)
 
@@ -99,7 +99,7 @@ def generate_certificate(name: str):
         x = (width - text_width) / 2
 
         # 🔥 PERFECT POSITION ON CERTIFICATE LINE
-        y = height * 0.52
+        y = height * 0.48
 
         # Slight green color for better design match
         draw.text((x, y), final_name, fill=(60, 80, 60), font=font)
