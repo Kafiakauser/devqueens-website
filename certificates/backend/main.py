@@ -36,11 +36,16 @@ if template_image.width > max_width:
     template_image = template_image.resize((max_width, new_height), Image.LANCZOS)
 
 
-# 🔍 SEARCH
+# 🔍 SEARCH (IMPROVED - Exact match first, then partial)
 @app.get("/search")
 def search(name: str):
     clean_name = name.strip().lower()
 
+    # Try exact match first for speed and accuracy
+    if clean_name in name_set:
+        return {"Name": clean_name.title()}
+    
+    # If no exact match, try partial match
     matches = [n for n in name_set if clean_name in n]
 
     if not matches:
