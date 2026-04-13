@@ -40,11 +40,22 @@ if template_image.width > max_width:
 
 
 # ✅ Load font ONCE
+def get_font_size(name):
+    length = len(name)
+
+    if length < 10:
+        return 150
+    elif length < 20:
+        return 120
+    else:
+        return 90
+
+font_size = get_font_size(final_name)
+
 try:
-    font = ImageFont.truetype("arial.ttf", 90)  # reduced size
+    font = ImageFont.truetype("arial.ttf", font_size)
 except:
     font = ImageFont.load_default()
-
 
 # 🔍 SEARCH
 @app.get("/search")
@@ -69,6 +80,23 @@ def generate_certificate(name: str):
         raise HTTPException(status_code=404, detail="Name not found.")
 
     final_name = clean_name.title()
+    # 🔥 Dynamic font size based on name length
+    def get_font_size(name):
+    length = len(name)
+
+    if length < 10:
+        return 150
+    elif length < 20:
+        return 120
+    else:
+        return 90
+
+font_size = get_font_size(final_name)
+
+try:
+    font = ImageFont.truetype("arial.ttf", font_size)
+except:
+    font = ImageFont.load_default()
 
     try:
         # 🔥 Copy instead of reopen (FAST)
@@ -81,7 +109,7 @@ def generate_certificate(name: str):
         text_width = bbox[2] - bbox[0]
 
         x = (width - text_width) / 2
-        y = height / 2 - 80
+        y = height / 2 - 120
 
         draw.text((x, y), final_name, fill="black", font=font)
 
