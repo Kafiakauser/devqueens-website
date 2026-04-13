@@ -4,26 +4,128 @@
   <meta charset="UTF-8" />
   <title>Generate Certificate</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
 
   <link rel="stylesheet" href="../../css/styles.css">
+  
+  <style>
+    /* Mobile Responsive Fixes */
+    @media (max-width: 768px) {
+      body.Certificates {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+      }
+
+      .cert-wrapper {
+        height: auto;
+        min-height: 100vh;
+        padding: 20px 0;
+        padding-top: 80px;
+        overflow: visible;
+      }
+
+      .cert-container {
+        width: 100%;
+        padding: 0 16px;
+      }
+
+      .cert-card {
+        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .cert-title {
+        font-size: 20px;
+      }
+
+      .cert-subtitle {
+        font-size: 12px;
+      }
+
+      .cert-input,
+      .cert-btn,
+      .clear-btn {
+        width: 100%;
+        font-size: 16px;
+        padding: 14px;
+        box-sizing: border-box;
+      }
+
+      .cert-btn {
+        margin-top: 8px;
+      }
+
+      .clear-btn {
+        margin-top: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cert-wrapper {
+        padding-top: 70px;
+      }
+
+      .cert-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .cert-title {
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+
+      .cert-subtitle {
+        font-size: 11px;
+        margin-bottom: 16px;
+      }
+
+      .cert-input {
+        padding: 12px;
+      }
+    }
+
+    /* Clear Button Styling */
+    .clear-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(96,255,248,0.2);
+      color: #60fff8;
+      transition: 0.2s ease;
+    }
+
+    .clear-btn:hover {
+      background: rgba(96,255,248,0.1);
+      border-color: rgba(96,255,248,0.4);
+    }
+
+    /* Ensure input doesn't auto-zoom on iOS */
+    input:focus {
+      font-size: 16px;
+    }
+  </style>
 </head>
 
 <body class="Certificates">
 
 <header class="site-header">
   <nav class="container nav-wrap">
-    <a class="brand" href="../index/">
-      <img class="brand-logo" src="../assets/logos/Primary_logo.png" />
+    <a class="brand" href="../../index/">
+      <img class="brand-logo" src="../../assets/logos/Primary_logo.png" alt="DevQueens Logo" />
     </a>
 
-    <div class="nav-links">
-      <a href="../index/">Home</a>
-      <a href="../about/">About</a>
-      <a href="../tracks/">Tracks</a>
-      <a href="../certificates/frontend/">Certificates</a>
-      <a href="../rules/">Rules</a>
-      <a href="../index/#faq">FAQ</a>
+    <button class="menu-btn" data-menu-btn type="button" aria-label="Toggle menu">Menu</button>
+    
+    <div class="nav-links" data-nav-links>
+      <a class="nav-link" href="../../index/">Home</a>
+      <a class="nav-link" href="../../about/">About</a>
+      <a class="nav-link" href="../../tracks/">Tracks</a>
+      <a class="nav-link" href="../../schedule/">Schedule</a>
+      <a class="nav-link" href="../../certificates/frontend/">Certificates</a>
+      <a class="nav-link" href="../../rules/">Rules</a>
+      <a class="nav-link" href="../../index/#faq">FAQ</a>
     </div>
   </nav>
 </header>
@@ -35,12 +137,21 @@
       <h1 class="cert-title">👑 Generate Certificate</h1>
 
       <p class="cert-subtitle">
-        We’re glad to have you at <strong>DevQueens</strong> 💚
+        We're glad to have you at <strong>DevQueens</strong> 💚
       </p>
 
-      <input id="nameInput" type="text" placeholder="Enter your full name" class="cert-input"/>
+      <input 
+        id="nameInput" 
+        type="text" 
+        placeholder="Enter your full name" 
+        class="cert-input"
+        style="font-size: 16px;"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="words"
+      />
 
-      <button id="searchBtn" onclick="search()" class="cert-btn">
+      <button id="searchBtn" onclick="search()" class="cert-btn" type="button">
         Search
       </button>
 
@@ -51,11 +162,11 @@
           ✅ Found: <strong id="resultName"></strong>
         </p>
 
-        <button id="downloadBtn" onclick="downloadCertificate()" class="cert-btn">
+        <button id="downloadBtn" onclick="downloadCertificate()" class="cert-btn" type="button">
           ⬇ Download Certificate
         </button>
 
-        <button onclick="clearAll()" class="clear-btn">Clear</button>
+        <button onclick="clearAll()" class="clear-btn" type="button">Clear</button>
       </div>
 
     </div>
@@ -87,6 +198,8 @@ async function search() {
 
     if (!res.ok) {
       document.getElementById("notFound").classList.remove("hidden");
+      btn.disabled = false;
+      btn.innerText = "Search";
       return;
     }
 
@@ -99,6 +212,7 @@ async function search() {
 
   } catch (err) {
     console.error(err);
+    document.getElementById("notFound").classList.remove("hidden");
     alert("Server is waking up. Please try again in a few seconds.");
   } finally {
     btn.disabled = false;
@@ -115,14 +229,17 @@ function downloadCertificate() {
     return;
   }
 
+  btn.disabled = true;
   btn.innerText = "⏳ Opening...";
 
+  // Open in new tab for mobile and desktop
   window.open(
     `${API}/certificate?name=${encodeURIComponent(currentName)}`,
     "_blank"
   );
 
   setTimeout(() => {
+    btn.disabled = false;
     btn.innerText = "⬇ Download Certificate";
   }, 2000);
 }
@@ -132,6 +249,7 @@ function clearAll() {
   document.getElementById("nameInput").value = "";
   currentName = "";
   hideAll();
+  document.getElementById("nameInput").focus();
 }
 
 // 🔄 RESET UI
@@ -139,6 +257,15 @@ function hideAll() {
   document.getElementById("notFound").classList.add("hidden");
   document.getElementById("resultBox").classList.add("hidden");
 }
+
+// Allow Enter key to search
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("nameInput").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      search();
+    }
+  });
+});
 </script>
 
 </body>
