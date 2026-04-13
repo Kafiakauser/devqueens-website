@@ -29,6 +29,7 @@ name_set = set(df["Name"])
 # ✅ Load template
 template_image = Image.open(TEMPLATE_FILE)
 
+# Resize for mobile performance
 max_width = 1200
 if template_image.width > max_width:
     ratio = max_width / template_image.width
@@ -36,26 +37,25 @@ if template_image.width > max_width:
     template_image = template_image.resize((max_width, new_height), Image.LANCZOS)
 
 
-# 🔍 SEARCH (IMPROVED - Exact match first, then partial)
+# 🔍 SEARCH (smart matching)
 @app.get("/search")
 def search(name: str):
     clean_name = name.strip().lower()
 
-    # Try exact match first for speed and accuracy
+    # Exact match first
     if clean_name in name_set:
         return {"Name": clean_name.title()}
-    
-    # If no exact match, try partial match
+
+    # Partial match
     matches = [n for n in name_set if clean_name in n]
 
     if not matches:
         raise HTTPException(status_code=404, detail="Name not found.")
 
-    final_name = matches[0].title()
-    return {"Name": final_name}
+    return {"Name": matches[0].title()}
 
 
-# 🎓 CERTIFICATE
+# 🎓 CERTIFICATE GENERATION
 @app.get("/certificate")
 def generate_certificate(name: str):
     clean_name = name.strip().lower()
@@ -71,20 +71,19 @@ def generate_certificate(name: str):
 
         width, height = image.size
 
-        # 🔥 SIGNIFICANTLY LARGER font sizes
+        # 🔥 Dynamic font sizing
         def get_font_size(name):
-    length = len(name)
-
-    if length <= 6:
-        return 300
-    elif length <= 10:
-        return 260
-    elif length <= 14:
-        return 220
-    elif length <= 18:
-        return 180
-    else:
-        return 140
+            length = len(name)
+            if length <= 6:
+                return 300
+            elif length <= 10:
+                return 260
+            elif length <= 14:
+                return 220
+            elif length <= 18:
+                return 180
+            else:
+                return 140
 
         font_size = get_font_size(final_name)
 
@@ -93,21 +92,22 @@ def generate_certificate(name: str):
         except:
             font = ImageFont.load_default()
 
+        # Center text
         bbox = draw.textbbox((0, 0), final_name, font=font)
         text_width = bbox[2] - bbox[0]
-        text_height = bbox[3] - bbox[1]
 
-        # Center horizontally and position MUCH LOWER on the certificate
         x = (width - text_width) / 2
-        y = (height * 0.52)  # Position at 40% down (much lower than before)
 
-        draw.text((x, y), final_name, fill="black", font=font)
+        # 🔥 PERFECT POSITION ON CERTIFICATE LINE
+        y = height * 0.52
 
+        # Slight green color for better design match
+        draw.text((x, y), final_name, fill=(60, 80, 60), font=font)
+
+        # Convert to image
         img_io = io.BytesIO()
-
         image = image.convert("RGB")
         image.save(img_io, format="JPEG", quality=85, optimize=True)
-
         img_io.seek(0)
 
         return StreamingResponse(
