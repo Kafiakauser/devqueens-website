@@ -51,10 +51,13 @@ except:
 def search(name: str):
     clean_name = name.strip().lower()
 
-    if clean_name not in name_set:
-        raise HTTPException(status_code=404, detail="Name not found.")
+    matches = [n for n in name_set if clean_name in n]
 
-    return {"Name": clean_name.title()}
+if not matches:
+    raise HTTPException(status_code=404, detail="Name not found.")
+
+final_name = matches[0].title()
+return {"Name": final_name}
 
 
 # 🎓 CERTIFICATE
