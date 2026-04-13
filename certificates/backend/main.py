@@ -73,23 +73,18 @@ def generate_certificate(name: str):
 
         # 🔥 SIGNIFICANTLY LARGER font sizes
         def get_font_size(name):
-            length = len(name)
-            if length <= 4:
-                return 320
-            elif length <= 6:
-                return 280
-            elif length <= 8:
-                return 250
-            elif length <= 10:
-                return 220
-            elif length <= 12:
-                return 200
-            elif length <= 16:
-                return 170
-            elif length <= 20:
-                return 140
-            else:
-                return 110
+    length = len(name)
+
+    if length <= 6:
+        return 300
+    elif length <= 10:
+        return 260
+    elif length <= 14:
+        return 220
+    elif length <= 18:
+        return 180
+    else:
+        return 140
 
         font_size = get_font_size(final_name)
 
@@ -104,7 +99,7 @@ def generate_certificate(name: str):
 
         # Center horizontally and position MUCH LOWER on the certificate
         x = (width - text_width) / 2
-        y = (height * 0.4)  # Position at 40% down (much lower than before)
+        y = (height * 0.52)  # Position at 40% down (much lower than before)
 
         draw.text((x, y), final_name, fill="black", font=font)
 
