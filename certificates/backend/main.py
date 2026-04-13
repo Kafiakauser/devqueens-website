@@ -21,41 +21,20 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_FILE = os.path.join(BASE_DIR, "participants.csv")
 TEMPLATE_FILE = os.path.join(BASE_DIR, "certificate_template.png")
 
-# ✅ Load data ONCE (FAST LOOKUP)
+# ✅ Load data
 df = pd.read_csv(CSV_FILE)
 df["Name"] = df["Name"].astype(str).str.strip().str.lower()
-
-# 🔥 Convert to set for fast search
 name_set = set(df["Name"])
 
-# ✅ Load template ONCE
+# ✅ Load template
 template_image = Image.open(TEMPLATE_FILE)
 
 max_width = 1200
-
 if template_image.width > max_width:
     ratio = max_width / template_image.width
     new_height = int(template_image.height * ratio)
     template_image = template_image.resize((max_width, new_height), Image.LANCZOS)
 
-
-# ✅ Load font ONCE
-def get_font_size(name):
-    length = len(name)
-
-    if length < 10:
-        return 150
-    elif length < 20:
-        return 120
-    else:
-        return 90
-
-font_size = get_font_size(final_name)
-
-try:
-    font = ImageFont.truetype("arial.ttf", font_size)
-except:
-    font = ImageFont.load_default()
 
 # 🔍 SEARCH
 @app.get("/search")
@@ -64,11 +43,11 @@ def search(name: str):
 
     matches = [n for n in name_set if clean_name in n]
 
-if not matches:
-    raise HTTPException(status_code=404, detail="Name not found.")
+    if not matches:
+        raise HTTPException(status_code=404, detail="Name not found.")
 
-final_name = matches[0].title()
-return {"Name": final_name}
+    final_name = matches[0].title()
+    return {"Name": final_name}
 
 
 # 🎓 CERTIFICATE
@@ -80,30 +59,29 @@ def generate_certificate(name: str):
         raise HTTPException(status_code=404, detail="Name not found.")
 
     final_name = clean_name.title()
-    # 🔥 Dynamic font size based on name length
-    def get_font_size(name):
-    length = len(name)
-
-    if length < 10:
-        return 150
-    elif length < 20:
-        return 120
-    else:
-        return 90
-
-font_size = get_font_size(final_name)
-
-try:
-    font = ImageFont.truetype("arial.ttf", font_size)
-except:
-    font = ImageFont.load_default()
 
     try:
-        # 🔥 Copy instead of reopen (FAST)
         image = template_image.copy()
         draw = ImageDraw.Draw(image)
 
         width, height = image.size
+
+        # 🔥 Dynamic font size
+        def get_font_size(name):
+            length = len(name)
+            if length < 10:
+                return 150
+            elif length < 20:
+                return 120
+            else:
+                return 90
+
+        font_size = get_font_size(final_name)
+
+        try:
+            font = ImageFont.truetype("arial.ttf", font_size)
+        except:
+            font = ImageFont.load_default()
 
         bbox = draw.textbbox((0, 0), final_name, font=font)
         text_width = bbox[2] - bbox[0]
@@ -114,17 +92,19 @@ except:
         draw.text((x, y), final_name, fill="black", font=font)
 
         img_io = io.BytesIO()
-        image = image.convert("RGB")  # required for JPEG
-        image.save(img_io, format="JPEG", quality=85, optimize=True)  # 🔥 optimize
+
+        image = image.convert("RGB")
+        image.save(img_io, format="JPEG", quality=85, optimize=True)
+
         img_io.seek(0)
 
         return StreamingResponse(
-    img_io,
-    media_type="image/jpeg",
-    headers={
-        "Content-Disposition": f'attachment; filename="{final_name}_certificate.jpg"'
-    }
-)
+            img_io,
+            media_type="image/jpeg",
+            headers={
+                "Content-Disposition": f'attachment; filename="{final_name}_certificate.jpg"'
+            }
+        )
 
     except Exception as e:
         print("Certificate Error:", e)
