@@ -29,7 +29,6 @@
 </header>
 
 <div class="cert-wrapper">
-
   <div class="cert-container">
     <div class="cert-card">
 
@@ -41,7 +40,9 @@
 
       <input id="nameInput" type="text" placeholder="Enter your full name" class="cert-input"/>
 
-      <button onclick="search()" class="cert-btn">Search</button>
+      <button id="searchBtn" onclick="search()" class="cert-btn">
+        Search
+      </button>
 
       <p id="notFound" class="error-text hidden">❌ Name not found</p>
 
@@ -68,6 +69,7 @@ let currentName = "";
 // 🔍 SEARCH
 async function search() {
   const name = document.getElementById("nameInput").value.trim();
+  const btn = document.getElementById("searchBtn");
 
   if (!name) {
     alert("Please enter a name");
@@ -75,6 +77,10 @@ async function search() {
   }
 
   hideAll();
+
+  // 🔄 Loading state
+  btn.disabled = true;
+  btn.innerText = "⏳ Searching...";
 
   try {
     const res = await fetch(`${API}/search?name=${encodeURIComponent(name)}`);
@@ -93,21 +99,32 @@ async function search() {
 
   } catch (err) {
     console.error(err);
-    alert("Server is waking up, try again in 10 seconds");
+    alert("Server is waking up. Please try again in a few seconds.");
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Search";
   }
 }
 
-// 📥 DOWNLOAD (MOBILE FIXED)
+// 📥 DOWNLOAD (MOBILE SAFE)
 function downloadCertificate() {
+  const btn = document.getElementById("downloadBtn");
+
   if (!currentName) {
     alert("Please search a name first!");
     return;
   }
 
+  btn.innerText = "⏳ Opening...";
+
   window.open(
     `${API}/certificate?name=${encodeURIComponent(currentName)}`,
     "_blank"
   );
+
+  setTimeout(() => {
+    btn.innerText = "⬇ Download Certificate";
+  }, 2000);
 }
 
 // 🧹 CLEAR
@@ -117,6 +134,7 @@ function clearAll() {
   hideAll();
 }
 
+// 🔄 RESET UI
 function hideAll() {
   document.getElementById("notFound").classList.add("hidden");
   document.getElementById("resultBox").classList.add("hidden");
