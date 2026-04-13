@@ -115,7 +115,7 @@
 
 
 <script>
-  const API = "http://127.0.0.1:8000";
+  const API = "https://devqueens-certificates.onrender.com";
 
 async function search() {
   const name = document.getElementById("nameInput").value.trim();
@@ -155,46 +155,25 @@ async function search() {
 
   let currentName = "";
 
-  async function downloadCertificate() {
+  function downloadCertificate() {
   const btn = document.getElementById("downloadBtn");
 
-  try {
-    if (!currentName) {
-      alert("Please search a name first!");
-      return;
-    }
-
-    // 🔄 Show loading state
-    btn.disabled = true;
-    btn.innerText = "⏳ Generating...";
-
-    const res = await fetch(
-      `${API}/certificate?name=${encodeURIComponent(currentName)}`
-    );
-
-    if (!res.ok) throw new Error("Download failed");
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `Certificate_${currentName.replace(/\s+/g, "_")}.png`;
-    a.click();
-
-    window.URL.revokeObjectURL(url);
-
-  } catch (err) {
-    console.error(err);
-    document.getElementById("errorMsg").classList.remove("hidden");
-
-  } finally {
-    // 🔄 Reset button
-    btn.disabled = false;
-    btn.innerText = "⬇ Download Certificate";
+  if (!currentName) {
+    alert("Please search a name first!");
+    return;
   }
-}
 
+  btn.innerText = "⏳ Opening...";
+
+  window.open(
+    `${API}/certificate?name=${encodeURIComponent(currentName)}`,
+    "_blank"
+  );
+
+  setTimeout(() => {
+    btn.innerText = "⬇ Download Certificate";
+  }, 2000);
+}
   // 🧹 CLEAR
   function clearAll() {
     document.getElementById("nameInput").value = "";
