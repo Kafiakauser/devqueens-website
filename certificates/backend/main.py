@@ -71,21 +71,25 @@ def generate_certificate(name: str):
 
         width, height = image.size
 
-        # 🔥 IMPROVED Dynamic font size (FIXED)
+        # 🔥 SIGNIFICANTLY LARGER font sizes
         def get_font_size(name):
             length = len(name)
-            if length <= 5:
-                return 200
+            if length <= 4:
+                return 320
+            elif length <= 6:
+                return 280
             elif length <= 8:
-                return 170
+                return 250
+            elif length <= 10:
+                return 220
             elif length <= 12:
-                return 140
+                return 200
             elif length <= 16:
-                return 110
+                return 170
             elif length <= 20:
-                return 90
+                return 140
             else:
-                return 70
+                return 110
 
         font_size = get_font_size(final_name)
 
@@ -98,9 +102,9 @@ def generate_certificate(name: str):
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
 
-        # Center horizontally and position better vertically
+        # Center horizontally and position MUCH LOWER on the certificate
         x = (width - text_width) / 2
-        y = (height / 2) - (text_height / 2) - 30  # Adjusted for better centering
+        y = (height * 0.4)  # Position at 40% down (much lower than before)
 
         draw.text((x, y), final_name, fill="black", font=font)
 
