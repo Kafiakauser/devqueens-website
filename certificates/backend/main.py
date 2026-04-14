@@ -26,15 +26,8 @@ df = pd.read_csv(CSV_FILE)
 df["Name"] = df["Name"].astype(str).str.strip().str.lower()
 name_set = set(df["Name"])
 
-# ✅ Load template
+# ✅ Load template - NO RESIZING, keep original size!
 template_image = Image.open(TEMPLATE_FILE)
-
-# Resize for mobile performance
-max_width = 1200
-if template_image.width > max_width:
-    ratio = max_width / template_image.width
-    new_height = int(template_image.height * ratio)
-    template_image = template_image.resize((max_width, new_height), Image.LANCZOS)
 
 
 # 🔍 SEARCH (smart matching)
@@ -71,14 +64,22 @@ def generate_certificate(name: str):
 
         width, height = image.size
 
-        # 🔥 Dynamic font sizing
+        # 🔥 Dynamic font sizing (MUCH LARGER for original image size)
         def get_font_size(name):
             length = len(name)
-            if length <= 6:
-                return 360
+            if length <= 4:
+                return 550
+            elif length <= 6:
+                return 500
+            elif length <= 8:
+                return 450
             elif length <= 10:
-                return 320
+                return 400
+            elif length <= 12:
+                return 360
             elif length <= 14:
+                return 320
+            elif length <= 16:
                 return 280
             elif length <= 18:
                 return 240
@@ -92,22 +93,22 @@ def generate_certificate(name: str):
         except:
             font = ImageFont.load_default()
 
-        # Center text
+        # Center text horizontally
         bbox = draw.textbbox((0, 0), final_name, font=font)
         text_width = bbox[2] - bbox[0]
 
         x = (width - text_width) / 2
 
-        # 🔥 PERFECT POSITION ON CERTIFICATE LINE
-        y = height * 0.48
+        # 🔥 Position on the certificate line (40% from top)
+        y = height * 0.39
 
-        # Slight green color for better design match
-        draw.text((x, y), final_name, fill=(60, 80, 60), font=font)
+        # Draw in dark green to match certificate design
+        draw.text((x, y), final_name, fill=(50, 70, 50), font=font)
 
-        # Convert to image
+        # Convert to JPEG
         img_io = io.BytesIO()
         image = image.convert("RGB")
-        image.save(img_io, format="JPEG", quality=85, optimize=True)
+        image.save(img_io, format="JPEG", quality=90, optimize=True)
         img_io.seek(0)
 
         return StreamingResponse(
