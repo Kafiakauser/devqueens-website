@@ -80,10 +80,10 @@ def generate_certificate(name: str):
                 except Exception:
                     return ImageFont.load_default()
 
-        font_size = 100
+        font_size = 84
         font = load_font(font_size)
-        max_text_width = int(width * 0.70)
-        max_text_height = int(height * 0.13)
+        max_text_width = int(width * 0.62)
+        max_text_height = int(height * 0.10)
 
         while font_size > 18:
             bbox = draw.textbbox((0, 0), final_name, font=font)
@@ -99,8 +99,8 @@ def generate_certificate(name: str):
         text_height = bbox[3] - bbox[1]
 
         x = (width - text_width) / 2
-        # ✅ Move the text slightly lower so the name is not too close to the top
-        y = int(height * 0.30)
+        # ✅ Final placement: below the certificate header line and above the description
+        y = int(height * 0.42)
 
         print(f"Font size: {font_size}pt for '{final_name}' ({len(final_name)} chars)")
         print(f"Drawing at position ({int(x)}, {y})")
