@@ -99,8 +99,8 @@ def generate_certificate(name: str):
         text_height = bbox[3] - bbox[1]
 
         x = (width - text_width) / 2
-        # ✅ Place the text higher so it sits near the name line and does not overlap the description
-        y = int(height * 0.24)
+        # ✅ Move the text slightly lower so the name is not too close to the top
+        y = int(height * 0.30)
 
         print(f"Font size: {font_size}pt for '{final_name}' ({len(final_name)} chars)")
         print(f"Drawing at position ({int(x)}, {y})")
