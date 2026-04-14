@@ -80,7 +80,7 @@ def generate_certificate(name: str):
                 except Exception:
                     return ImageFont.load_default()
 
-        font_size = 84
+        font_size = 72
         font = load_font(font_size)
         max_text_width = int(width * 0.62)
         max_text_height = int(height * 0.10)
@@ -105,7 +105,7 @@ def generate_certificate(name: str):
         print(f"Font size: {font_size}pt for '{final_name}' ({len(final_name)} chars)")
         print(f"Drawing at position ({int(x)}, {y})")
 
-        draw.text((x, y), final_name, fill="black", font=font)
+        draw.text((x, y), final_name, fill="#0b3d0b", font=font)
 
         # Save as JPEG
         img_io = io.BytesIO()
