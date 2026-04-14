@@ -70,7 +70,7 @@ def generate_certificate(name: str):
         width, height = image.size
         print(f"Generating certificate for '{final_name}' - Image size: {width}x{height}")
 
-        # 🔥 Fit font size to the available certificate width and keep the name above the description
+        # 🔥 Fit the name to the certificate area and keep it above the description
         def load_font(size):
             try:
                 return ImageFont.truetype("arial.ttf", size)
@@ -80,14 +80,16 @@ def generate_certificate(name: str):
                 except Exception:
                     return ImageFont.load_default()
 
-        font_size = 140
+        font_size = 100
         font = load_font(font_size)
-        max_text_width = int(width * 0.78)
+        max_text_width = int(width * 0.70)
+        max_text_height = int(height * 0.13)
 
         while font_size > 18:
             bbox = draw.textbbox((0, 0), final_name, font=font)
             text_width = bbox[2] - bbox[0]
-            if text_width <= max_text_width:
+            text_height = bbox[3] - bbox[1]
+            if text_width <= max_text_width and text_height <= max_text_height:
                 break
             font_size -= 2
             font = load_font(font_size)
@@ -97,8 +99,8 @@ def generate_certificate(name: str):
         text_height = bbox[3] - bbox[1]
 
         x = (width - text_width) / 2
-        # ✅ Move the name line higher so it does not overlap the certificate description below
-        y = int(height * 0.28)
+        # ✅ Place the text higher so it sits near the name line and does not overlap the description
+        y = int(height * 0.24)
 
         print(f"Font size: {font_size}pt for '{final_name}' ({len(final_name)} chars)")
         print(f"Drawing at position ({int(x)}, {y})")
