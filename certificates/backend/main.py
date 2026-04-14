@@ -70,49 +70,37 @@ def generate_certificate(name: str):
         width, height = image.size
         print(f"Generating certificate for '{final_name}' - Image size: {width}x{height}")
 
-        # 🔥 MUCH LARGER font sizes - scale based on actual image width
-        def get_font_size(name, img_width):
-            length = len(name)
-            # For 1200px width image
-            if length <= 4:
-                return 280  # Very short names - LARGE
-            elif length <= 6:
-                return 250  # Short names like "Zoya Ali"
-            elif length <= 8:
-                return 220
-            elif length <= 10:
-                return 190
-            elif length <= 12:
-                return 160
-            elif length <= 14:
-                return 140
-            elif length <= 16:
-                return 120
-            elif length <= 18:
-                return 100
-            else:
-                return 80
-
-        font_size = get_font_size(final_name, width)
-        print(f"Font size: {font_size}pt for '{final_name}' ({len(final_name)} chars)")
-
-        try:
-            font = ImageFont.truetype("arial.ttf", font_size)
-        except:
+        # 🔥 Fit font size to the available certificate width and keep the name above the description
+        def load_font(size):
             try:
-                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
-            except:
-                font = ImageFont.load_default()
+                return ImageFont.truetype("arial.ttf", size)
+            except Exception:
+                try:
+                    return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size)
+                except Exception:
+                    return ImageFont.load_default()
 
-        # Center text horizontally
+        font_size = 140
+        font = load_font(font_size)
+        max_text_width = int(width * 0.78)
+
+        while font_size > 18:
+            bbox = draw.textbbox((0, 0), final_name, font=font)
+            text_width = bbox[2] - bbox[0]
+            if text_width <= max_text_width:
+                break
+            font_size -= 2
+            font = load_font(font_size)
+
         bbox = draw.textbbox((0, 0), final_name, font=font)
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
 
         x = (width - text_width) / 2
-        # ✅ Position HIGHER - at 32% from top (above the description)
-        y = int(height * 0.32)
+        # ✅ Move the name line higher so it does not overlap the certificate description below
+        y = int(height * 0.28)
 
+        print(f"Font size: {font_size}pt for '{final_name}' ({len(final_name)} chars)")
         print(f"Drawing at position ({int(x)}, {y})")
 
         draw.text((x, y), final_name, fill="black", font=font)
