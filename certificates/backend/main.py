@@ -26,20 +26,23 @@ df = pd.read_csv(CSV_FILE)
 df["Name"] = df["Name"].astype(str).str.strip().str.lower()
 name_set = set(df["Name"])
 
-# ✅ Load template - NO RESIZING, keep original size!
-template_image = Image.open(TEMPLATE_FILE)
+# ✅ Load template ONCE and cache it
+try:
+    template_image = Image.open(TEMPLATE_FILE)
+    print(f"Template loaded: {template_image.size} pixels")
+except Exception as e:
+    print(f"Error loading template: {e}")
+    template_image = None
 
 
-# 🔍 SEARCH (smart matching)
+# 🔍 SEARCH
 @app.get("/search")
 def search(name: str):
     clean_name = name.strip().lower()
 
-    # Exact match first
     if clean_name in name_set:
         return {"Name": clean_name.title()}
 
-    # Partial match
     matches = [n for n in name_set if clean_name in n]
 
     if not matches:
@@ -51,6 +54,9 @@ def search(name: str):
 # 🎓 CERTIFICATE GENERATION
 @app.get("/certificate")
 def generate_certificate(name: str):
+    if template_image is None:
+        raise HTTPException(status_code=500, detail="Certificate template not found.")
+
     clean_name = name.strip().lower()
 
     if clean_name not in name_set:
@@ -59,57 +65,76 @@ def generate_certificate(name: str):
     final_name = clean_name.title()
 
     try:
+        # ✅ SAFE: Resize template only once for processing
         image = template_image.copy()
-        draw = ImageDraw.Draw(image)
-
+        
+        # Get image dimensions
         width, height = image.size
+        print(f"Processing certificate for '{final_name}' - Image size: {width}x{height}")
 
-        # 🔥 Dynamic font sizing (MUCH LARGER for original image size)
-        def get_font_size(name):
+        # 🔥 Smart font sizing based on actual image dimensions
+        def get_font_size(name, img_width):
+            # Scale font based on image width
             length = len(name)
+            base_size = img_width / 6  # Use image width as reference
+            
             if length <= 4:
-                return 550
+                return int(base_size)
             elif length <= 6:
-                return 500
+                return int(base_size * 0.95)
             elif length <= 8:
-                return 450
+                return int(base_size * 0.90)
             elif length <= 10:
-                return 400
+                return int(base_size * 0.85)
             elif length <= 12:
-                return 360
+                return int(base_size * 0.80)
             elif length <= 14:
-                return 320
+                return int(base_size * 0.75)
             elif length <= 16:
-                return 280
+                return int(base_size * 0.70)
             elif length <= 18:
-                return 240
+                return int(base_size * 0.60)
             else:
-                return 200
+                return int(base_size * 0.50)
 
-        font_size = get_font_size(final_name)
+        font_size = get_font_size(final_name, width)
+        print(f"Font size calculated: {font_size}pt for '{final_name}' ({len(final_name)} chars)")
 
+        # ✅ Load font with fallback
         try:
             font = ImageFont.truetype("arial.ttf", font_size)
         except:
-            font = ImageFont.load_default()
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
+            except:
+                font = ImageFont.load_default()
 
-        # Center text horizontally
+        # Draw text
+        draw = ImageDraw.Draw(image)
+
+        # Calculate text dimensions
         bbox = draw.textbbox((0, 0), final_name, font=font)
         text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
 
+        # Center horizontally
         x = (width - text_width) / 2
 
-        # 🔥 Position on the certificate line (40% from top)
-        y = height * 0.39
+        # Position at 40% from top (between "PRESENTED TO" and signature line)
+        y = int(height * 0.38)
 
-        # Draw in dark green to match certificate design
+        print(f"Drawing text at position ({int(x)}, {y})")
+
+        # Draw text in dark green
         draw.text((x, y), final_name, fill=(50, 70, 50), font=font)
 
-        # Convert to JPEG
+        # ✅ Convert and save as JPEG
         img_io = io.BytesIO()
         image = image.convert("RGB")
-        image.save(img_io, format="JPEG", quality=90, optimize=True)
+        image.save(img_io, format="JPEG", quality=85, optimize=True)
         img_io.seek(0)
+
+        print(f"Certificate generated successfully for {final_name}")
 
         return StreamingResponse(
             img_io,
@@ -120,5 +145,5 @@ def generate_certificate(name: str):
         )
 
     except Exception as e:
-        print("Certificate Error:", e)
-        raise HTTPException(status_code=500, detail="Certificate generation failed")
+        print(f"Certificate Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Certificate generation failed: {str(e)}")
