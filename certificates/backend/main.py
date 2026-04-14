@@ -110,8 +110,8 @@ def generate_certificate(name: str):
         text_height = bbox[3] - bbox[1]
 
         x = (width - text_width) / 2
-        # Position lower on the certificate (40% from top)
-        y = int(height * 0.40)
+        # ✅ Position HIGHER - at 32% from top (above the description)
+        y = int(height * 0.32)
 
         print(f"Drawing at position ({int(x)}, {y})")
 
