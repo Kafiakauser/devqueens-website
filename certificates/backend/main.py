@@ -80,7 +80,7 @@ def generate_certificate(name: str):
                 except Exception:
                     return ImageFont.load_default()
 
-        font_size = 72
+        font_size = 64
         font = load_font(font_size)
         max_text_width = int(width * 0.62)
         max_text_height = int(height * 0.10)
